@@ -4,12 +4,14 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "async": "^3.2.0",
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
-    "mongo": "^0.1.0"
+    "mongo": "^0.1.0",
+    "readline-sync": "^1.4.10"
   },
   "devDependencies": {
-    "webpack": "^1.13.0"
+    "webpack": "^1.15.0"
   },
   "scripts": {
     "test": "mocha client/src/bang_game/specs",

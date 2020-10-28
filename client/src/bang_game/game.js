@@ -461,7 +461,7 @@ Game.prototype.canShootTargetCheck = function(){
 };
 // returns true if active player can shoot their current targeted player, and false if they cannot
 
-Game.prototype.fireGatling = function(){$
+Game.prototype.fireGatling = function(){
   if (this.gatlingCheck()) {
     for(var i = 1; i < this.players.length; i++){
       this.players[i].health -= 1;
@@ -493,7 +493,7 @@ Game.prototype.shootTarget = function(){
     counterToDecrement = 2
   }
 
-  if (this.players[0].target){
+  if (counterToDecrement && this.players[0].target){
     this.players[0].target.health -= 1;
     // console.log(this.players[0].name + " shot " + this.players[0].target.name)
     this.players[0].actionCounters[counterToDecrement.toString()] -= 1;

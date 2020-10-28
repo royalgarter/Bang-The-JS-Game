@@ -10,12 +10,13 @@ var GameState = function(game){
 }; // constructor [end]
 
 GameState.prototype.save = function(){
-  localStorage.setItem("bang_the_JS_game_save", JSON.stringify(this.game));
-  console.log("Game saved:", this.game);
+  // localStorage.setItem("bang_the_JS_game_save", JSON.stringify(this.game));
+  // console.log("Game saved:", this.game);
 }
 
 GameState.prototype.load = function(){
-  var loadReturn =  JSON.parse(localStorage.getItem("bang_the_JS_game_save"));
+  // var loadReturn =  JSON.parse(localStorage.getItem("bang_the_JS_game_save"));
+  var loadReturn = null;
   this.savedGame = loadReturn;
   console.log("Saved game retrieved:", loadReturn);
   
