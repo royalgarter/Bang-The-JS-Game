@@ -25,7 +25,7 @@ G.r = G.rollDice = function() {
 	game.resolveArrows();
 	G.currentPlayerDied();
 	game.checkForDeaths();
-	if (game.dice.canRoll() === false) {
+	if (game.dice.canRoll() == false) {
 		game.addToActionCounters();
 	}
 
@@ -42,48 +42,55 @@ G.pa = G.pickAllDice = function() {
 	}
 };
 
-G.p = G.pickDice = function(diceNumber) {
-	diceNumber = parseInt(diceNumber) - 1;
-	var diceValue = game.dice.all[diceNumber]
-	if (diceValue !== 5) game.dice.save(diceValue)
-	G.diceRollFinished();
+G.p = G.pickDice = function(...idxs) {
+	if (!idxs.length) return;
+	
+	for (var i = 0; i < idxs.length; i++) {
+		idxs[i] = parseInt(idxs[i]) - 1;
+		var diceValue = game.dice.currentRoll.splice(idxs[i], 1)[0];
+
+		if (!diceValue) return;
+		if (diceValue != 5) game.dice.save(diceValue)
+		
+		G.diceRollFinished();
+	}
 };
 
 G.e = G.endTurn = function() {
 	G.fireGatling();
 	game.nextTurn(false, null);
-	// gameState.save(); // save state of the game at another time without resetting dice and rotating players and in theory we could possibly continue the turn with the dice and rerolls remembered
+	// gameState.save();
 }
 
-G.t = G.targetPlayer = function(playerIndex) {
-	playerIndex = parseInt(playerIndex) - 1;
-	game.players[0].target = game.allPlayers[playerIndex];
+G.t = G.targetPlayer = function(idx) {
+	idx = parseInt(idx) - 1;
+	game.players[0].target = game.allPlayers[idx];
 };
 
 G.t0 = G.cleartargetPlayer = function() {
 	game.players[0].target = null;
 };
 
-G.h = G.healTarget = function(...targets) {
-	if (!targets.length) {
+G.h = G.healTarget = function(...idxs) {
+	if (!idxs.length) {
 		game.beerTarget();
 		game.checkActions()	
 	} else {
-		for (var i = 0; i < targets.length; i++) {
-			G.targetPlayer(targets[i]);
+		for (var i = 0; i < idxs.length; i++) {
+			G.targetPlayer(idxs[i]);
 			game.beerTarget();
 			game.checkActions()
 		}
 	}
 };
 
-G.s = G.shootTarget = function(...targets) {
-	if (!targets.length) {
+G.s = G.shootTarget = function(...idxs) {
+	if (!idxs.length) {
 		game.shootTarget();
 		game.checkActions()	
 	} else {
-		for (var i = 0; i < targets.length; i++) {
-			G.targetPlayer(targets[i]);
+		for (var i = 0; i < idxs.length; i++) {
+			G.targetPlayer(idxs[i]);
 			game.shootTarget();
 			game.checkActions()
 		}
@@ -98,8 +105,7 @@ G.currentPlayerDied = function() {
 G.diceRollFinished = function() {
 	if (game.dice.canRoll() === false) {
 		game.addToActionCounters();
-		if (game.checkActions()) {}
-		game.addToActionCounters();
+
 		if (game.checkActions() <= 0) {
 			G.fireGatling();
 		}
@@ -156,9 +162,13 @@ G.render = function() {
 			chalk.red(`[Health: ${p.health}/${p.maxHealth}]\t`),
 			`${G.renderAction(p.actionCounters, game.dice.meaningOf)}`,
 			chalk.gray(`\n${p.character.abilityDescription}`),
-		];
+		].join(' ');
 
-		ps.push(i==0?chalk.bold(text.join(' ')):text.join(' '));
+		if (i == 0) text = chalk.underline(text);
+		if (i == 1 || i == game.players.length-1 ) text = chalk.bold(text);
+		if (i == 2 || i == game.players.length-2 ) text = chalk.bold(text);
+
+		ps.push(text);
 	}
 
 	let d = { ...game.dice};

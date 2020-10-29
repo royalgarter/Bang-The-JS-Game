@@ -53,7 +53,7 @@ Dice.prototype.reset = function() {
 
 Dice.prototype.roll = function(player) {
 	this.arrowsRolled = 0;
-	if (this.canRoll() === false) return;
+	if (this.canRoll() === false) return this.rolls = 0;
 	this.currentRoll = [];
 	var numberOfDiceToRoll = 5 - this.saved.length;
 

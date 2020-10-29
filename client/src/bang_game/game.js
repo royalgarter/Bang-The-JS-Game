@@ -55,7 +55,7 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "If you have four life points or less, you gain two if you use Beer for yourself.",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'beer') return false;
+			if (e != 'beer') return false;
 
 			if (p && p.name == p.target.name && p.character.slug == 'jesse' && p.health <= 4) {
 				p.target.health += 1;
@@ -74,7 +74,7 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "For each Gatling you may discard one arrow from any player.",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'kit') return false;
+			if (e != 'kit') return false;
 
 			if (p && p.actionCounters['4'] && p.target.arrows) {
 				p.actionCounters['4'] -= 1;
@@ -94,7 +94,7 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "You may re-roll Dynamite. (Unless you roll three or more!)",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'roll_dynamite') return false;
+			if (e != 'roll_dynamite') return false;
 
 			return false;
 		}
@@ -107,7 +107,7 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "You may use Bullseye 1 or Bullseye 2 for players sitting one place further.",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'shoot') return false;
+			if (e != 'shoot') return false;
 
 			return false;
 		}
@@ -120,7 +120,7 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "Each time you lose a life point, you may discard one of your arrows.",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'pedro_lose_health') return false;
+			if (e != 'pedro_lose_health') return false;
 
 			if (p.arrows) {
 				p.arrows -= 1;
@@ -140,7 +140,7 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "When a player makes you lose one or more life points, they must take an arrow.",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'el_lose_health') return false;
+			if (e != 'el_lose_health') return false;
 
 			if (p.arrows) {
 				p.arrows += 1;
@@ -160,9 +160,9 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "You may take an arrow instead of losing a life point (except to Arrows or Dynamite).",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'bart_lose_health') return false;
+			if (e != 'bart_lose_health' || p.character.slug != 'bart') return false;
 
-			if (p.arrows) {
+			if (g.totalArrows) {
 				p.health += 1
 				p.arrows += 1;
 				g.totalArrows -= 1;
@@ -181,7 +181,7 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "Each time another player is eliminated, you gain two life points.",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'vulture') return false;
+			if (e != 'vulture') return false;
 
 			p.health += 2;
 
@@ -218,7 +218,7 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "Once per turn, you can use a Beer to double a Bullseye 1 or Bullseye 2.",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'slab' || p || !p.abilityCount) return false;
+			if (e != 'slab' || p || !p.abilityCount) return false;
 
 			p.abilityCount -= 1;
 			return true;
@@ -232,7 +232,7 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "At the beginning of your turn, any player of your choice gains one life point.",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'sid' || p || !p.abilityCount) return false;
+			if (e != 'sid' || p || !p.abilityCount) return false;
 
 			p.target.health += 1;
 			p.abilityCount -= 1;
@@ -248,7 +248,7 @@ var Game = function(dice, players, characterBasedMaxHealth, previousObject, hydr
 		abilityDescription: "If you didn't roll any Bullseye 1 or Bullseye 2 you gain two life points.",
 		abilityCount: 1, 
 		ability: (e, g, p, d) => {
-			if (!e == 'suzy' || p || !p.abilityCount) return false;
+			if (e != 'suzy' || p || !p.abilityCount) return false;
 
 			if (p.actionCounters['1'] <= 0 && p.actionCounters['2'] <= 0) {
 				p.health += 2;
@@ -409,7 +409,7 @@ Game.prototype.nextTurn = function(currentPlayerDead, gameState) {
 		this.players[i].abilityCount = 1;
 	}
 
-	if (this.players[0].slug == 'lucky') {
+	if (this.players[0].character.slug == 'lucky') {
 		this.dice.rolls += 1;
 	}
 };
@@ -545,7 +545,7 @@ Game.prototype.arrowsDamage = function() {
 
 Game.prototype.removeHealthAndArrows = function() {
 	for (var i = 0; i < this.players.length; i++) {
-		this.players[i].health -= this.players[i].slug == 'jour' ? 1 : this.players[i].arrows;
+		this.players[i].health -= this.players[i].character.slug == 'jour' ? 1 : this.players[i].arrows;
 		this.players[i].arrows = 0;
 	};
 };
@@ -631,7 +631,7 @@ Game.prototype.canShootTargetCheck = function() {
 Game.prototype.fireGatling = function() {
 	if (this.gatlingCheck()) {
 		for (var i = 1; i < this.players.length; i++) {
-			if (this.players[i].slug == 'paul') continue;
+			if (this.players[i].character.slug == 'paul') continue;
 
 			this.players[i].health -= 1;
 			this.players[i].character.ability('pedro_lose_health', this, this.players[i]);
@@ -651,7 +651,7 @@ Game.prototype.gatlingCheck = function() {
 		if (item === 4) counter++;
 	};
 
-	if (this.players[0].slug == 'willy') counter += 1;
+	if (this.players[0].character.slug == 'willy') counter += 1;
 
 	return (counter >= 3 && this.gatlingAvailable === true && this.checkActions() <= 0)
 }
@@ -667,7 +667,7 @@ Game.prototype.shootTarget = function() {
 		counterToDecrement = 2
 	}
 
-	if (p.slug == 'rose') {
+	if (p.character.slug == 'rose') {
 		if (p.actionCounters["1"] > 0 && (this.canShoot(1) || this.canShoot(2))) {
 			counterToDecrement = 1
 		} else if (p.actionCounters["2"] > 0 && (this.canShoot(2) || this.canShoot(3))) {
@@ -675,7 +675,7 @@ Game.prototype.shootTarget = function() {
 		}
 	}
 
-	if (p.slug == 'calamity') {
+	if (p.character.slug == 'calamity') {
 		if (p.actionCounters["1"] > 0 && (this.canShoot(1) || this.canShoot(2))) {
 			counterToDecrement = 1
 		} else if (p.actionCounters["2"] > 0 && (this.canShoot(1) || this.canShoot(2))) {
@@ -683,7 +683,7 @@ Game.prototype.shootTarget = function() {
 		}
 	}
 
-	if (p.slug == 'slab') {
+	if (p.character.slug == 'slab') {
 		if (p.abilityCount && p.actionCounters["3"] > 0 && (this.canShoot(1) || this.canShoot(2))) {
 			counterToDecrement = 3;
 			p.character.ability('slab', this, p);
