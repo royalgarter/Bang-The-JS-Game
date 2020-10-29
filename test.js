@@ -51,17 +51,17 @@ G.p = G.pickDice = function(diceNumber) {
 
 G.e = G.endTurn = function() {
 	G.fireGatling();
-	game.nextTurn(false, gameState);
-	gameState.save(); // save state of the game at another time without resetting dice and rotating players and in theory we could possibly continue the turn with the dice and rerolls remembered
+	game.nextTurn(false, null);
+	// gameState.save(); // save state of the game at another time without resetting dice and rotating players and in theory we could possibly continue the turn with the dice and rerolls remembered
 }
 
 G.t = G.targetPlayer = function(playerIndex) {
 	playerIndex = parseInt(playerIndex) - 1;
-	if (game.players[0].target === game.allPlayers[playerIndex]) {
-		game.players[0].target = null;
-	} else {
-		game.players[0].target = game.allPlayers[playerIndex];
-	}
+	game.players[0].target = game.allPlayers[playerIndex];
+};
+
+G.t0 = G.cleartargetPlayer = function() {
+	game.players[0].target = null;
 };
 
 G.h = G.healTarget = function(...targets) {
@@ -70,7 +70,7 @@ G.h = G.healTarget = function(...targets) {
 		game.checkActions()	
 	} else {
 		for (var i = 0; i < targets.length; i++) {
-			targetPlayer(targets[i]);
+			G.targetPlayer(targets[i]);
 			game.beerTarget();
 			game.checkActions()
 		}
@@ -83,7 +83,7 @@ G.s = G.shootTarget = function(...targets) {
 		game.checkActions()	
 	} else {
 		for (var i = 0; i < targets.length; i++) {
-			targetPlayer(targets[i]);
+			G.targetPlayer(targets[i]);
 			game.shootTarget();
 			game.checkActions()
 		}

@@ -426,6 +426,7 @@ Game.prototype.checkForDeaths = function() {
 			// removes target from active player if their target is dead - prevents healing your target back to 1 hp straight after you kill them, for example.
 			if (this.players[i] === this.players[0].target) {
 				this.players[0].target = null;
+				this.players.forEach(p => p.character.ability('vulture', this, p));
 			}
 			this.removePlayer(this.players[i]);
 		} // "if health is 0" conditional [end]
@@ -438,8 +439,6 @@ Game.prototype.checkForDeaths = function() {
 
 Game.prototype.removePlayer = function(player) {
 	this.players.splice(this.players.indexOf(player), 1);
-
-	this.players.forEach(p => p.ability('vulture', this));
 
 	return this.players;
 };
@@ -573,7 +572,7 @@ Game.prototype.addToActionCounters = function() {
 		this.players[0].actionCounters[this.dice.all[i].toString()] += 1;
 	};
 
-	this.players[0].ability('suzy', this, this.players[0]);
+	this.players[0].character.ability('suzy', this, this.players[0]);
 };
 ///// counts how many of each dice result (arrow, beer etc) and saves this to the players actionsCounters.
 
@@ -635,7 +634,7 @@ Game.prototype.fireGatling = function() {
 			if (this.players[i].slug == 'paul') continue;
 
 			this.players[i].health -= 1;
-			this.players[i].ability('pedro_lose_health', this, this.players[i]);
+			this.players[i].character.ability('pedro_lose_health', this, this.players[i]);
 		};
 		this.totalArrows += this.players[0].arrows;
 		this.players[0].arrows = 0;
@@ -687,15 +686,15 @@ Game.prototype.shootTarget = function() {
 	if (p.slug == 'slab') {
 		if (p.abilityCount && p.actionCounters["3"] > 0 && (this.canShoot(1) || this.canShoot(2))) {
 			counterToDecrement = 3;
-			p.ability('slab', this, p);
+			p.character.ability('slab', this, p);
 		}
 	}
 
 	if (counterToDecrement && p.target) {
 		p.target.health -= 1;
-		p.target.ability('pedro_lose_health', this, p.target);
-		p.target.ability('el_lose_health', this, p);
-		p.target.ability('bart_lose_health', this, p.target);
+		p.target.character.ability('pedro_lose_health', this, p.target);
+		p.target.character.ability('el_lose_health', this, p);
+		p.target.character.ability('bart_lose_health', this, p.target);
 		// console.log(p.name + " shot " + p.target.name)
 		p.actionCounters[counterToDecrement.toString()] -= 1;
 		// this.checkForDeaths();// need to update the live array if someone dies so that 1s and 2s are still accurate in terms of distance in the same turn as someone dies
@@ -736,7 +735,7 @@ Game.prototype.checkActions = function() {
 Game.prototype.dynamiteExplodes = function() {
 	if (this.dice.threeDynamite()) {
 		this.players[0].health -= 1;
-		this.players[0].ability('pedro_lose_health', this, this.players[0]);
+		this.players[0].character.ability('pedro_lose_health', this, this.players[0]);
 		return true;
 	}
 };
