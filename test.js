@@ -32,6 +32,7 @@ G.r = G.rollDice = function() {
 	if (game.dice.threeDynamite()) {
 		game.dynamiteExplodes();
 	}
+	game.dice.countArrows();
 
 	G.currentPlayerDied();
 };
@@ -119,8 +120,37 @@ G.fireGatling = function() {
 	}
 };
 
-G.renderAction = (actionCounters, meaning) => {
+G.renderDice = (dice) => {
+	let result = [];
+
+	let render = v => {
+		let raw = `${dice.meaningOf[v].replace(/\s/g, '')}`;
+
+		switch (v) {
+			case 1:case 2: raw = chalk.bgGrey(raw);break;
+			case 3: raw = chalk.bgYellow(raw);break;
+			case 4: raw = chalk.bgGreen(raw);break;
+			case 5: raw = chalk.bgRed(raw);break;
+			case 6: raw = chalk.bgBlue(raw);break;
+		}
+
+		return raw;
+	}
+
 	let text = [];
+
+	for (let v of dice.currentRoll) text.push(chalk.bold(render(v)));
+	for (let v of dice.saved) text.push(chalk.underline(render(v)));
+
+	result.push('DICE: ' + text.join(' '))
+	result.push('ARROW: ' + dice.arrowsRolled)
+	result.push('ROLL: ' + dice.rolls)
+
+	return result.join('\n')
+};
+
+G.renderAction = (actionCounters, meaning) => {
+	let text = ['\t'];
 
 	for (let k in actionCounters) {
 		let item = ` ${meaning[k].replace(/\s/g,'')}: ${actionCounters[k]} `
@@ -159,23 +189,19 @@ G.render = function() {
 			chalk.cyan(`${p.character.name.substr(0,8)}`),
 			chalk.magenta(`${p.role.name.substr(0,6)}`),
 			chalk.blue(`<Arrow: ${p.arrows}>`),
-			chalk.red(`[Health: ${p.health}/${p.maxHealth}]\t`),
-			`${G.renderAction(p.actionCounters, game.dice.meaningOf)}`,
+			chalk.red(`[Health: ${p.health}/${p.maxHealth}]`),
+			`${i==0?G.renderAction(p.actionCounters, game.dice.meaningOf):''}`,
 			chalk.gray(`\n${p.character.abilityDescription}`),
 		].join(' ');
 
-		if (i == 0) text = chalk.underline(text);
-		if (i == 1 || i == game.players.length-1 ) text = chalk.bold(text);
+		// if (i == 0) text = chalk.underline(text);
+		if (i == 1 || i == game.players.length-1 ) text = chalk.underline(text);
 		if (i == 2 || i == game.players.length-2 ) text = chalk.bold(text);
 
-		ps.push(text);
+		ps.push(text.trim());
 	}
 
-	let d = { ...game.dice};
-	delete d.imageUrl;
-	delete d.meaningOf;
-	ps.push(chalk.yellow(`DICE:\n${ip(d)}`))
-
+	ps.push(G.renderDice(game.dice))
 	ps.push(chalk.magenta(`${game.players[0].name} <target>>> ${game.players[0].target?game.players[0].target.name:''}`))
 	ps.push(chalk.green(`HEAL:${game.canHeal()} SHOOT1:${game.canShoot1()} SHOOT2:${game.canShoot2()}`))
 
